@@ -5,7 +5,6 @@
 namespace System
 {
     void Init();
-    void Process();
 
     uint32_t GetTickMs();
 }

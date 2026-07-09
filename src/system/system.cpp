@@ -45,23 +45,13 @@ namespace System
     {
         uint32_t value;
 
+        uint8_t sreg = SREG;
         cli();
+        
         value = tickMs;
-        sei();
+        
+        SREG = sreg;
 
         return value;
-    }
-
-    void Process()
-    {
-        const uint32_t now = GetTickMs();
-
-        if ((now - lastHeartbeatMs) >= SystemConfig::HeartbeatToggleMs)
-        {
-            lastHeartbeatMs = now;
-
-            // Toggle PC1
-            PORTC ^= (1 << SystemConfig::HeartbeatBit);
-        }
     }
 }

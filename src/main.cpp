@@ -12,7 +12,6 @@ void setup()
 
 void loop()
 {
-  //System::Process();
 
   static uint32_t lastTick = 0;
 
