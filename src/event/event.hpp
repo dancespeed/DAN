@@ -49,7 +49,7 @@ enum class SequenceId : uint8_t
 struct Event
 {
     EventType type;
-    EventTarget terget;
+    EventTarget target;
     uint8_t object;
     uint16_t value;
 };
