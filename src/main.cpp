@@ -4,10 +4,30 @@
 #include "event/event.hpp"
 #include "eventbus/eventbus.hpp"
 #include "pwm/pwm.hpp"
+#include "drivers/i2c.hpp"
 
 void setup()
 {
     Serial.begin(115200);
+
+    //временно --------------
+
+    I2C::Init();
+
+    const bool pcaDetected = I2C::StartWrite(0x40);
+
+    if (pcaDetected)
+    {
+        Serial.println("PCA9685 ACK received");
+    }
+    else
+    {
+        Serial.println("PCA9685 not detected");
+    }
+
+    I2C::Stop();
+
+    //-----------------------
 
     System::Init();
     EventBus::Init();
