@@ -29,7 +29,7 @@ namespace
     {
         const ChannelType type = PWM::GetChannelType(channel);
 
-        //----------------------------------------------
+        /*
 
         Serial.print ("HandleClick channel: ");
         Serial.print (static_cast<uint8_t>(channel));
@@ -53,8 +53,7 @@ namespace
 
             return;
         }
-
-        //----------------------------------------------
+        */
 
         if (type == ChannelType::OnOff)
         {
@@ -62,9 +61,6 @@ namespace
             PWM::IsEnabled(channel)
                 ? 0
                 : 1;
-
-            Serial.print("OnOff targetStep: ");
-            Serial.println(targetStep);
 
             PublishSetChannelState(channel, targetStep);
 
@@ -111,6 +107,7 @@ namespace Logic
         const Event& event
     )
     {
+        /*
         Serial.print ("Logic event type: ");
         Serial.print (static_cast<uint8_t>(event.type));
 
@@ -127,6 +124,7 @@ namespace Logic
         {
             return;
         }
+        */
 
         if (event.type !=
             EventType::UserCommand)
@@ -151,12 +149,14 @@ namespace Logic
             static_cast<CommandType>(
                 event.value
             );
-        
+
+        /*
         Serial.print ("UserCommand channel: ");
         Serial.print (static_cast<uint8_t>(channel));
 
         Serial.print (", command: ");
         Serial.println (static_cast<uint8_t>(command));
+        */
 
         switch (command)
         {
