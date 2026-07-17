@@ -17,5 +17,7 @@ namespace PWM
     uint8_t GetCurrentStep(ChannelId channel);
     uint8_t GetMaxStep(ChannelId channel);
 
+    ChannelType GetChannelType(ChannelId channel);
+
     uint16_t GetCurrentBrightness(ChannelId channel);
 }

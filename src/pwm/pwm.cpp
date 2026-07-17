@@ -225,6 +225,16 @@ namespace PWM
         return PWMConfig::Channels[ToIndex(channel)].maxStep;
     }
 
+    ChannelType GetChannelType(ChannelId channel)
+    {
+        if (!IsValidChannel(channel))
+        {
+            return ChannelType::OnOff;
+        }
+
+        return PWMConfig::Channels[ToIndex(channel)].type;
+}
+
     uint16_t GetCurrentBrightness(ChannelId channel)
     {
         if (!IsValidChannel(channel))

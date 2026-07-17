@@ -39,10 +39,7 @@ namespace
              ));
     }
 
-    bool TryGetChannel(
-        ButtonId button,
-        ChannelId& channel
-    )
+    bool TryGetChannel(ButtonId button, ChannelId& channel)
     {
         switch (button)
         {
@@ -111,16 +108,36 @@ namespace
         }
     }
 
-    void PublishCommand(
-        ButtonId button,
-        CommandType command
-    )
+    void PublishCommand(ButtonId button, CommandType command)
     {
         ChannelId channel;
+        CommandType outputCommand = command;
 
-        if (!TryGetChannel(button, channel))
+        if (button == ButtonId::AromaIon)
         {
-            return;
+            if (command == CommandType::Click)
+            {
+                channel = ChannelId::Aroma;
+            }
+            else if (command == CommandType::Hold)
+            {
+                channel = ChannelId::Ion;
+
+                // Физический Hold этой кнопки
+                // означает переключение канала ION.
+                outputCommand = CommandType::Click;
+            }
+            else
+            {
+                return;
+            }
+        }
+        else
+        {
+            if (!TryGetChannel(button, channel))
+            {
+                return;
+            }
         }
 
         const Event event
@@ -128,7 +145,7 @@ namespace
             EventType::UserCommand,
             EventTarget::Logic,
             static_cast<uint8_t>(channel),
-            static_cast<uint16_t>(command)
+            static_cast<uint16_t>(outputCommand)
         };
 
         EventBus::Publish(event);

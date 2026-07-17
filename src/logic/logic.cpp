@@ -1,3 +1,5 @@
+#include <Arduino.h>
+
 #include "logic.hpp"
 
 #include "eventbus/eventbus.hpp"
@@ -25,21 +27,60 @@ namespace
 
     void HandleClick(ChannelId channel)
     {
-        uint8_t step =
-            PWM::GetCurrentStep(channel);
+        const ChannelType type = PWM::GetChannelType(channel);
 
-        if (!PWM::IsEnabled(channel))
+        //----------------------------------------------
+
+        Serial.print ("HandleClick channel: ");
+        Serial.print (static_cast<uint8_t>(channel));
+
+        Serial.print (", type: ");
+        Serial.println (static_cast<uint8_t>(type));
+
+        if (type == ChannelType::OnOff)
         {
-            PublishSetChannelState(
-                channel,
-                step
-            );
+            const bool enabled = PWM::IsEnabled(channel);
+
+            const uint8_t targetStep = enabled ? 0 : 1;
+
+            Serial.print ("OnOff enabled: ");
+            Serial.print (enabled);
+
+            Serial.print (", targetStep: ");
+            Serial.println (targetStep);
+
+            PublishSetChannelState(channel, targetStep);
 
             return;
         }
 
-        const uint8_t maxStep =
-            PWM::GetMaxStep(channel);
+        //----------------------------------------------
+
+        if (type == ChannelType::OnOff)
+        {
+            const uint8_t targetStep =
+            PWM::IsEnabled(channel)
+                ? 0
+                : 1;
+
+            Serial.print("OnOff targetStep: ");
+            Serial.println(targetStep);
+
+            PublishSetChannelState(channel, targetStep);
+
+            return;
+        }
+
+        uint8_t step = PWM::GetCurrentStep(channel);
+
+        if (!PWM::IsEnabled(channel))
+        {
+            PublishSetChannelState(channel, step);
+
+            return;
+        }
+
+        const uint8_t maxStep = PWM::GetMaxStep(channel);
 
         if (step < maxStep)
         {
@@ -50,18 +91,13 @@ namespace
             step = 1;
         }
 
-        PublishSetChannelState(
-            channel,
-            step
-        );
+        PublishSetChannelState(channel, step);
+
     }
 
     void HandleHold(ChannelId channel)
     {
-        PublishSetChannelState(
-            channel,
-            0
-        );
+        PublishSetChannelState(channel, 0);
     }
 }
 
@@ -75,6 +111,23 @@ namespace Logic
         const Event& event
     )
     {
+        Serial.print ("Logic event type: ");
+        Serial.print (static_cast<uint8_t>(event.type));
+
+        Serial.print (", target: ");
+        Serial.print (static_cast<uint8_t>(event.target));
+
+        Serial.print (", object: ");
+        Serial.print (event.object);
+
+        Serial.print (", value: ");
+        Serial.println (event.value);
+
+        if (event.type != EventType::UserCommand)
+        {
+            return;
+        }
+
         if (event.type !=
             EventType::UserCommand)
         {
@@ -98,6 +151,12 @@ namespace Logic
             static_cast<CommandType>(
                 event.value
             );
+        
+        Serial.print ("UserCommand channel: ");
+        Serial.print (static_cast<uint8_t>(channel));
+
+        Serial.print (", command: ");
+        Serial.println (static_cast<uint8_t>(command));
 
         switch (command)
         {

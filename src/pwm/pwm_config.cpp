@@ -37,21 +37,21 @@ namespace PWMConfig
 
         {
             ChannelId::Ion,
-            ChannelType::Step,
+            ChannelType::OnOff,
             5,      // PCA9685 LED5 = ION
             4095,
-            4,
-            true,
+            1,
+            false,
             true
         },
 
         {
             ChannelId::Aroma,
-            ChannelType::Step,
+            ChannelType::OnOff,
             6,      // PCA9685 LED6 = AROMA
             4095,
-            4,
-            true,
+            1,
+            false,
             true
         },
 
@@ -67,41 +67,41 @@ namespace PWMConfig
 
         {
             ChannelId::Exhst,
-            ChannelType::Step,
+            ChannelType::OnOff,
             8,      // PCA9685 LED8 = EXHST
             4095,
-            4,
-            true,
+            1,
+            false,
             true
         },
 
         {
             ChannelId::Smart,
-            ChannelType::Step,
+            ChannelType::OnOff,
             9,      // PCA9685 LED9 = SMART
             4095,
-            4,
-            true,
+            1,
+            false,
             true
         },
 
         {
             ChannelId::Res1,
-            ChannelType::Step,
+            ChannelType::OnOff,
             10,     // PCA9685 LED10 = RES1
             4095,
-            4,
-            true,
+            1,
+            false,
             true
         },
 
         {
             ChannelId::Res2,
-            ChannelType::Step,
+            ChannelType::OnOff,
             11,     // PCA9685 LED11 = RES2
             4095,
-            4,
-            true,
+            1,
+            false,
             true
         }
     };
