@@ -15,6 +15,8 @@ namespace
 
     constexpr ChannelId TestChannel =
         ChannelId::Channel1;
+
+    bool systemReady = false;
 }
 
 void setup()
@@ -35,6 +37,8 @@ void setup()
 
     PWM::Init();
 
+    systemReady = true;
+
     Serial.println(
         "Real PWM transition test started"
     );
@@ -42,6 +46,11 @@ void setup()
 
 void loop()
 {
+    if (!systemReady)
+    {
+        return;
+    }
+
     static uint32_t lastHeartbeatTick = 0;
     static uint32_t lastCommandTick = 0;
 

@@ -22,6 +22,8 @@ namespace PWMDriver
 
     bool Init()
     {
+        DisableOutputs();
+
         // Сначала устанавливаем безопасный HIGH,
         // затем переводим PD5 в режим выхода.
         PORTD |=
@@ -29,8 +31,6 @@ namespace PWMDriver
 
         DDRD |=
             (1 << PWMDriverConfig::OutputEnableBit);
-
-        DisableOutputs();
 
         // I2C::Init() только конфигурирует TWI-регистры.
         I2C::Init();
