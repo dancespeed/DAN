@@ -83,11 +83,14 @@ namespace
 
         if (!config.smoothEnable)
         {
-            state.currentBrightness = state.targetBrightness;
+            if (!PWMDriver::Set(config.driverChannel, state.targetBrightness))
+            {
+            return;
+            }
 
-            PWMDriver::Set (config.driverChannel, state.currentBrightness);
+        state.currentBrightness = state.targetBrightness;
 
-            PublishChannelStateChanged(channel);
+        PublishChannelStateChanged(channel);
         }
     }
 
@@ -110,20 +113,27 @@ namespace
 
         state.lastUpdateMs = now;
 
-        if (state.currentBrightness < state.targetBrightness)
+        uint16_t nextBrightness = state.currentBrightness;
+
+        if (nextBrightness < state.targetBrightness)
         {
-            state.currentBrightness++;
+            nextBrightness++;
         }
         else
         {
-            state.currentBrightness--;
+            nextBrightness--;
         }
 
-        PWMDriver::Set (config.driverChannel, state.currentBrightness);
+        if (!PWMDriver::Set(config.driverChannel, nextBrightness))
+        {
+            return;
+        }
+
+        state.currentBrightness = nextBrightness;
 
         if (state.currentBrightness == state.targetBrightness)
         {
-            PublishChannelStateChanged  (static_cast<ChannelId>(index));
+            PublishChannelStateChanged(static_cast<ChannelId>(index));
         }
     }
 }
