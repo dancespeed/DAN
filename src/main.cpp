@@ -3,7 +3,7 @@
 #include "system/system.hpp"
 #include "event/event.hpp"
 #include "eventbus/eventbus.hpp"
-
+#include "logic/logic.hpp"
 #include "drivers/pwm_driver.hpp"
 #include "pwm/pwm.hpp"
 
@@ -20,6 +20,7 @@ void setup()
 
     System::Init();
     EventBus::Init();
+    Logic::Init();
 
     if (!PWMDriver::Init())
     {
@@ -70,12 +71,12 @@ void loop()
 
     if (EventBus::Get(event))
     {
-        if (event.type ==
-            EventType::SystemHeartbeat)
+        if (event.type == EventType::SystemHeartbeat)
         {
             PORTC ^= (1 << PC1);
         }
 
+        Logic::HandleEvent(event);
         PWM::HandleEvent(event);
     }
 

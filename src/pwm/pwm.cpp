@@ -215,6 +215,16 @@ namespace PWM
         return channels[ToIndex(channel)].currentStep;
     }
 
+    uint8_t GetMaxStep(ChannelId channel)
+    {
+        if (!IsValidChannel(channel))
+        {
+            return 0;
+        }
+
+        return PWMConfig::Channels[ToIndex(channel)].maxStep;
+    }
+
     uint16_t GetCurrentBrightness(ChannelId channel)
     {
         if (!IsValidChannel(channel))

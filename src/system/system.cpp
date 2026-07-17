@@ -7,7 +7,6 @@
 namespace
 {
     volatile uint32_t tickMs = 0;
-    uint32_t lastHeartbeatMs = 0;
 }
 
 ISR(TIMER2_COMPA_vect)
@@ -19,24 +18,35 @@ namespace System
 {
     void Init()
     {
-        // PC1 as output
-        DDRC |= (1 << SystemConfig::HeartbeatBit);
+        // PC1 — выход диагностического heartbeat.
+        DDRC |=
+            (1 << SystemConfig::HeartbeatBit);
 
-        // Heartbeat LOW initially
-        PORTC &= ~(1 << SystemConfig::HeartbeatBit);
+        // Начальное состояние heartbeat — LOW.
+        PORTC &=
+            ~(1 << SystemConfig::HeartbeatBit);
 
-        // Timer1 CTC mode, 1 mc tick
+        // Timer2:
+        // CTC mode;
+        // период системного тика — 1 мс.
         TCCR2A = 0;
         TCCR2B = 0;
         TCNT2 = 0;
 
-        OCR2A = SystemConfig::Timer1CompareValue;
-        // OCR2A = 249;
+        OCR2A =
+            SystemConfig::Timer2CompareValue;
 
-        TCCR2A |= (1 << WGM21);                 // CTC mode
-        TCCR2B |= (1 << CS22) | (1 << CS22);    // prescaler 64
+        // CTC mode: сброс Timer2 при совпадении с OCR2A.
+        TCCR2A |=
+            (1 << WGM21);
 
-        TIMSK2 |= (1 << OCIE2A);                // enable compare interrupt
+        // Предделитель Timer2 = 64.
+        TCCR2B |=
+            (1 << CS22);
+
+        // Разрешаем прерывание Compare Match A.
+        TIMSK2 |=
+            (1 << OCIE2A);
 
         sei();
     }
@@ -45,11 +55,12 @@ namespace System
     {
         uint32_t value;
 
-        uint8_t sreg = SREG;
+        const uint8_t sreg = SREG;
+
         cli();
-        
+
         value = tickMs;
-        
+
         SREG = sreg;
 
         return value;

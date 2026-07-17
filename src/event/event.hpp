@@ -11,8 +11,7 @@ enum class EventType : uint8_t
     IgnitionOn,
     IgnitionOff,
 
-    ButtonClick,
-    ButtonHold,
+    UserCommand,
 
     SetChannelState,
     ChannelStateChanged,
@@ -20,7 +19,7 @@ enum class EventType : uint8_t
     StartSequence,
     SequenceFinished,
 
-    RquestEepromFlush,
+    RequestEepromFlush,
     RequestSleep
 };
 
@@ -36,6 +35,14 @@ enum class EventTarget : uint8_t
     Logic,
     Sequencer,
     Diagnostic
+};
+
+enum class CommandType : uint8_t
+{
+    None = 0,
+
+    Click,
+    Hold
 };
 
 enum class SequenceId : uint8_t
