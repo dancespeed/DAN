@@ -4,10 +4,16 @@
 
 enum class ChannelId : uint8_t
 {
-    Channel1 = 0,
-    Channel2,
-    Channel3,
-    Channel4,
+    SturmLh = 0,
+    SturmRh,
+    Side,
+    Ion,
+    Aroma,
+    Ceil,
+    Exhst,
+    Smart,
+    Res1,
+    Res2,
 
     Count
 };
@@ -34,9 +40,9 @@ struct ChannelConfig
 
 struct ChannelRuntime
 {
-    bool     enabled;
+    bool enabled;
 
-    uint8_t  currentStep;
+    uint8_t currentStep;
 
     uint16_t currentBrightness;
     uint16_t targetBrightness;
