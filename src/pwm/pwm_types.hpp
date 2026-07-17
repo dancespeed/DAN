@@ -20,21 +20,23 @@ enum class ChannelType : uint8_t
 
 struct ChannelConfig
 {
-    ChannelId id;
+    ChannelId   id;
     ChannelType type;
 
-    uint16_t maxBrightness;
-    uint8_t maxStep;
+    uint8_t     driverChannel;
 
-    bool smoothEnable;
-    bool restoreEnable;
+    uint16_t    maxBrightness;
+    uint8_t     maxStep;
+
+    bool        smoothEnable;
+    bool        restoreEnable;
 };
 
 struct ChannelRuntime
 {
-    bool enabled;
+    bool     enabled;
 
-    uint8_t currentStep;
+    uint8_t  currentStep;
 
     uint16_t currentBrightness;
     uint16_t targetBrightness;

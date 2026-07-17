@@ -1,18 +1,30 @@
 #include <Arduino.h>
 
-#include "drivers/i2c.hpp"
-#include "drivers/pwm_driver.hpp"
+#include "system/system.hpp"
+#include "event/event.hpp"
+#include "eventbus/eventbus.hpp"
 
-constexpr uint8_t TestChannel = 4;
+#include "drivers/pwm_driver.hpp"
+#include "pwm/pwm.hpp"
+#include "pwm/pwm_types.hpp"
+
+namespace
+{
+    constexpr uint32_t HeartbeatPeriodMs = 1000;
+    constexpr uint32_t CommandPeriodMs = 5000;
+
+    constexpr ChannelId TestChannel =
+        ChannelId::Channel1;
+}
 
 void setup()
 {
     Serial.begin(115200);
 
-    const bool initialized =
-        PWMDriver::Init();
+    System::Init();
+    EventBus::Init();
 
-    if (!initialized)
+    if (!PWMDriver::Init())
     {
         Serial.println(
             "PWM driver initialization failed"
@@ -21,27 +33,92 @@ void setup()
         return;
     }
 
+    PWM::Init();
+
     Serial.println(
-        "PWM driver initialized"
+        "Real PWM transition test started"
     );
-
-    const bool channelSet =
-        PWMDriver::Set(TestChannel, 4095);
-
-    if (channelSet)
-    {
-        Serial.println(
-            "PCA9685 TestChannel set to maximum"
-        );
-    }
-    else
-    {
-        Serial.println(
-            "PCA9685 TestChannel write failed"
-        );
-    }
 }
 
 void loop()
 {
+    static uint32_t lastHeartbeatTick = 0;
+    static uint32_t lastCommandTick = 0;
+
+    static uint8_t testStep = 1;
+
+    const uint32_t now = System::GetTickMs();
+
+    if ((now - lastHeartbeatTick) >=
+        HeartbeatPeriodMs)
+    {
+        lastHeartbeatTick = now;
+
+        const Event heartbeatEvent
+        {
+            EventType::SystemHeartbeat,
+            EventTarget::Broadcast,
+            0,
+            0
+        };
+
+        EventBus::Publish(heartbeatEvent);
+    }
+
+    if ((now - lastCommandTick) >=
+        CommandPeriodMs)
+    {
+        lastCommandTick = now;
+
+        const Event pwmEvent
+        {
+            EventType::SetChannelState,
+            EventTarget::PWM,
+            static_cast<uint8_t>(TestChannel),
+            testStep
+        };
+
+        EventBus::Publish(pwmEvent);
+
+        Serial.print("Command step: ");
+        Serial.println(testStep);
+
+        if (testStep < 4)
+        {
+            testStep++;
+        }
+        else if (testStep == 4)
+        {
+            testStep = 0;
+        }
+        else
+        {
+            testStep = 1;
+        }
+    }
+
+    Event event;
+
+    if (EventBus::Get(event))
+    {
+        if (event.type ==
+            EventType::SystemHeartbeat)
+        {
+            PORTC ^= (1 << PC1);
+        }
+
+        PWM::HandleEvent(event);
+
+        if (event.type ==
+            EventType::ChannelStateChanged)
+        {
+            Serial.print(
+                "Transition finished. Brightness: "
+            );
+
+            Serial.println(event.value);
+        }
+    }
+
+    PWM::Process();
 }

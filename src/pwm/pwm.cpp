@@ -4,6 +4,8 @@
 #include "eventbus/eventbus.hpp"
 #include "system/system.hpp"
 
+#include "drivers/pwm_driver.hpp"
+
 namespace
 {
     ChannelRuntime channels[PWMConfig::ChannelCount];
@@ -82,6 +84,9 @@ namespace
         if (!config.smoothEnable)
         {
             state.currentBrightness = state.targetBrightness;
+
+            PWMDriver::Set (config.driverChannel, state.currentBrightness);
+
             PublishChannelStateChanged(channel);
         }
     }
@@ -89,6 +94,7 @@ namespace
     void ProcessTransition(uint8_t index)
     {
         ChannelRuntime& state = channels[index];
+        const ChannelConfig& config = PWMConfig::Channels[index];
 
         if (state.currentBrightness == state.targetBrightness)
         {
@@ -104,7 +110,7 @@ namespace
 
         state.lastUpdateMs = now;
 
-        if(state.currentBrightness < state.targetBrightness)
+        if (state.currentBrightness < state.targetBrightness)
         {
             state.currentBrightness++;
         }
@@ -113,12 +119,11 @@ namespace
             state.currentBrightness--;
         }
 
-        //TODO: Replace with PCA9685 write
-        //PWMDriver::Set(index, state.currentBrightness);
+        PWMDriver::Set (config.driverChannel, state.currentBrightness);
 
         if (state.currentBrightness == state.targetBrightness)
         {
-            PublishChannelStateChanged(static_cast<ChannelId>(index));
+            PublishChannelStateChanged  (static_cast<ChannelId>(index));
         }
     }
 }
@@ -148,6 +153,8 @@ namespace PWM
             }
 
             state.lastUpdateMs = System::GetTickMs();
+
+            PWMDriver::Set (config.driverChannel, 0);
         }
     }
 
