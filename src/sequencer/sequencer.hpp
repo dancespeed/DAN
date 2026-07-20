@@ -19,6 +19,8 @@ namespace Sequencer
 
     void Init();
 
+    void Load(const SequenceStep* sequence, uint8_t size);
+
     void HandleEvent(const Event& event);
 
     void Update();
