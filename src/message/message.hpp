@@ -35,18 +35,18 @@ using ObjectId = uint16_t;
 using MessageValue = uint16_t;
 
 constexpr ModuleId NoReceiver = 0x00;
-constexpr ModuleId Broadcast = 0xFF;
+constexpr ModuleId Broadcast  = 0xFF;
 
 enum class MessageType : uint8_t
 {
-    Event = 0x00,
+    Event   = 0x00,
     Command = 0x01
 };
 
-enum class MessageFlag : uint8_t
+enum class MessageAttribute : uint8_t
 {
-    None = 0x00,
-    System = 0x04,
+    None     = 0x00,
+    System   = 0x04,
     Reserved = 0x08
 };
 
@@ -59,13 +59,13 @@ struct Message
 
 namespace MessageHeader
 {
-    constexpr uint8_t SenderShift = 24;
+    constexpr uint8_t SenderShift   = 24;
     constexpr uint8_t ReceiverShift = 16;
-    constexpr uint8_t FlagsShift = 12;
+    constexpr uint8_t FlagsShift    = 12;
 
-    constexpr uint32_t ModuleMask = 0xFF;
-    constexpr uint32_t FlagsMask = 0x0F;
-    constexpr uint32_t TypeMask = 0x03;
+    constexpr uint32_t ModuleMask    = 0xFF;
+    constexpr uint32_t FlagsMask     = 0x0F;
+    constexpr uint32_t TypeMask      = 0x03;
     constexpr uint32_t AttributeMask = 0x0C;
     constexpr uint32_t MessageIdMask = 0x0FFF;
 
@@ -73,7 +73,7 @@ namespace MessageHeader
         ModuleId sender,
         ModuleId receiver,
         MessageType type,
-        MessageFlag flags,
+        MessageAttribute attributes,
         MessageId messageId)
     {
         return
@@ -82,7 +82,7 @@ namespace MessageHeader
             (
                 (
                     static_cast<uint32_t>(type) |
-                    static_cast<uint32_t>(flags)
+                    static_cast<uint32_t>(attributes)
                 ) & FlagsMask
             ) << FlagsShift |
             (static_cast<uint32_t>(messageId) & MessageIdMask);
@@ -112,11 +112,11 @@ namespace MessageHeader
         );
     }
 
-    constexpr uint8_t GetFlags(
+    constexpr uint8_t GetAttributes(
         uint32_t header)
     {
         return static_cast<uint8_t>(
-            (header >> FlagsShift) & FlagsMask
+            (header >> FlagsShift) & AttributeMask
         );
     }
 
@@ -128,14 +128,14 @@ namespace MessageHeader
         );
     }
 
-    constexpr bool HasFlag(
+    constexpr bool HasAttribute(
         uint32_t header,
-        MessageFlag flag)
+        MessageAttribute attribute)
     {
         return
             (
-                GetFlags(header) &
-                static_cast<uint8_t>(flag)
+                GetAttributes(header) &
+                static_cast<uint8_t>(attribute)
             ) != 0;
     }
 
