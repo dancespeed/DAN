@@ -11,80 +11,60 @@
 //
 // 31             24 23             16 15          12 11              0
 // ┌────────────────┬─────────────────┬──────────────┬─────────────────┐
-// │   Sender ID    │   Receiver ID   │    Flags     │   Message ID    │
+// │   Sender ID    │   Receiver ID   │  Attribute   │   Message ID    │
 // │     8 bits     │      8 bits     │    4 bits    │     12 bits     │
 // └────────────────┴─────────────────┴──────────────┴─────────────────┘
 //
-// Flags layout:
+// Payload layout:
 //
-// 3             2 1                 0
-// ┌───────────────┬──────────────────┐
-// │  Attributes   │   Message Type   │
-// │    2 bits     │      2 bits      │
-// └───────────────┴──────────────────┘
-//
-// Message body:
-//
-// Object ID: 16 bits
-// Value:     16 bits
+// 31                             16 15                              0
+// ┌────────────────────────────────┬────────────────────────────────┐
+// │           Object ID            │             Value              │
+// │            16 bits             │            16 bits             │
+// └────────────────────────────────┴────────────────────────────────┘
 // -----------------------------------------------------------------------------
 
 using ModuleId = uint8_t;
+using MessageAttribute = uint8_t;
 using MessageId = uint16_t;
 using ObjectId = uint16_t;
 using MessageValue = uint16_t;
 
 constexpr ModuleId NoReceiver = 0x00;
-constexpr ModuleId Broadcast  = 0xFF;
+constexpr ModuleId Broadcast = 0xFF;
 
-enum class MessageType : uint8_t
-{
-    Event   = 0x00,
-    Command = 0x01
-};
-
-enum class MessageAttribute : uint8_t
-{
-    None     = 0x00,
-    System   = 0x04,
-    Reserved = 0x08
-};
+constexpr MessageAttribute NoAttribute = 0x00;
 
 struct Message
 {
     uint32_t header;
-    ObjectId object;
+    ObjectId objectId;
     MessageValue value;
 };
 
 namespace MessageHeader
 {
-    constexpr uint8_t SenderShift   = 24;
+    constexpr uint8_t SenderShift = 24;
     constexpr uint8_t ReceiverShift = 16;
-    constexpr uint8_t FlagsShift    = 12;
+    constexpr uint8_t AttributeShift = 12;
 
-    constexpr uint32_t ModuleMask    = 0xFF;
-    constexpr uint32_t FlagsMask     = 0x0F;
-    constexpr uint32_t TypeMask      = 0x03;
-    constexpr uint32_t AttributeMask = 0x0C;
+    constexpr uint32_t ModuleMask = 0x00FF;
+    constexpr uint32_t AttributeMask = 0x000F;
     constexpr uint32_t MessageIdMask = 0x0FFF;
 
     constexpr uint32_t Create(
         ModuleId sender,
         ModuleId receiver,
-        MessageType type,
-        MessageAttribute attributes,
+        MessageAttribute attribute,
         MessageId messageId)
     {
         return
             (static_cast<uint32_t>(sender) << SenderShift) |
             (static_cast<uint32_t>(receiver) << ReceiverShift) |
             (
-                (
-                    static_cast<uint32_t>(type) |
-                    static_cast<uint32_t>(attributes)
-                ) & FlagsMask
-            ) << FlagsShift |
+                (static_cast<uint32_t>(attribute) & AttributeMask)
+                << AttributeShift
+            ) |
             (static_cast<uint32_t>(messageId) & MessageIdMask);
     }
 
@@ -104,19 +84,11 @@ namespace MessageHeader
         );
     }
 
-    constexpr MessageType GetType(
+    constexpr MessageAttribute GetAttribute(
         uint32_t header)
     {
-        return static_cast<MessageType>(
-            (header >> FlagsShift) & TypeMask
-        );
-    }
-
-    constexpr uint8_t GetAttributes(
-        uint32_t header)
-    {
-        return static_cast<uint8_t>(
-            (header >> FlagsShift) & AttributeMask
+        return static_cast<MessageAttribute>(
+            (header >> AttributeShift) & AttributeMask
         );
     }
 
@@ -128,15 +100,14 @@ namespace MessageHeader
         );
     }
 
-    constexpr bool HasAttribute(
-        uint32_t header,
+    constexpr bool IsValidAttribute(
         MessageAttribute attribute)
     {
         return
             (
-                GetAttributes(header) &
-                static_cast<uint8_t>(attribute)
-            ) != 0;
+                static_cast<uint32_t>(attribute) &
+                ~AttributeMask
+            ) == 0;
     }
 
     constexpr bool IsValidMessageId(
