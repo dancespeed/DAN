@@ -4,6 +4,8 @@
 
 #include "eventbus/eventbus.hpp"
 
+#include "message/module_id.hpp"
+
 #include "pwm/pwm.hpp"
 #include "pwm/pwm_types.hpp"
 
@@ -22,7 +24,7 @@ namespace
             step
         };
 
-        EventBus::Publish(event);
+        EventBus::Publish(Module::Logic, event);
     }
 
     void HandleClick(ChannelId channel)

@@ -2,6 +2,8 @@
 #include "pwm_config.hpp"
 
 #include "eventbus/eventbus.hpp"
+
+#include "message/module_id.hpp"
 #include "system/system.hpp"
 
 #include "drivers/pwm_driver.hpp"
@@ -49,7 +51,7 @@ namespace
             channels[index].currentBrightness
         };
 
-        EventBus::Publish(event);
+        EventBus::Publish(Module::PWM, event);
     }
 
     void SetChannelStep(ChannelId channel, uint8_t step)

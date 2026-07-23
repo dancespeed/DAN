@@ -4,6 +4,8 @@
 #include "event/event.hpp"
 #include "event/event_dispatcher.hpp"
 #include "eventbus/eventbus.hpp"
+
+#include "message/module_id.hpp"
 #include "logic/logic.hpp"
 #include "input/input.hpp"
 #include "drivers/pwm_driver.hpp"
@@ -76,6 +78,7 @@ void loop()
             0
         };
         EventBus::Publish(
+            Module::System,
             heartbeatEvent
         );
     }

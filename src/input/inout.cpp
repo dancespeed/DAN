@@ -6,6 +6,8 @@
 #include "event/event.hpp"
 #include "eventbus/eventbus.hpp"
 
+#include "message/module_id.hpp"
+
 #include "pwm/pwm_types.hpp"
 
 #include "system/system.hpp"
@@ -148,7 +150,7 @@ namespace
             static_cast<uint16_t>(outputCommand)
         };
 
-        EventBus::Publish(event);
+        EventBus::Publish(Module::Button, event);
     }
 
     void SetRawState(
