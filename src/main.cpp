@@ -2,6 +2,7 @@
 
 #include "system/system.hpp"
 #include "event/event.hpp"
+#include "event/event_dispatcher.hpp"
 #include "eventbus/eventbus.hpp"
 #include "logic/logic.hpp"
 #include "input/input.hpp"
@@ -74,7 +75,6 @@ void loop()
             0,
             0
         };
-
         EventBus::Publish(
             heartbeatEvent
         );
@@ -82,20 +82,7 @@ void loop()
 
     Input::Process();
 
-    Event event;
-
-    if (EventBus::Get(event))
-    {
-        if (event.type ==
-            EventType::SystemHeartbeat)
-        {
-            PORTC ^=
-                (1 << PC1);
-        }
-
-        Logic::HandleEvent(event);
-        PWM::HandleEvent(event);
-    }
+    EventDispatcher::Process();
 
     PWM::Process();
 }
