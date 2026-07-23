@@ -1,11 +1,14 @@
 #include <Arduino.h>
 
 #include "system/system.hpp"
+
 #include "event/event.hpp"
 #include "event/event_dispatcher.hpp"
 #include "eventbus/eventbus.hpp"
 
 #include "message/module_id.hpp"
+#include "message/message_dispatcher.hpp"
+
 #include "logic/logic.hpp"
 #include "input/input.hpp"
 #include "drivers/pwm_driver.hpp"
@@ -77,6 +80,7 @@ void loop()
             0,
             0
         };
+
         EventBus::Publish(
             Module::System,
             heartbeatEvent
@@ -86,6 +90,7 @@ void loop()
     Input::Process();
 
     EventDispatcher::Process();
+    MessageDispatcher::Process();
 
     PWM::Process();
 }
